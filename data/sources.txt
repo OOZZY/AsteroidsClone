@@ -1,0 +1,35 @@
+image/ammo.png
+source: http://opengameart.org/content/power-up-icons
+license: http://creativecommons.org/licenses/by/3.0/
+
+image/asteroid.png
+source: http://opengameart.org/content/rocks
+license: http://creativecommons.org/publicdomain/zero/1.0/
+
+image/enemy.png
+source: http://opengameart.org/content/spaceship-fighter-ipod1
+license: http://creativecommons.org/licenses/by-sa/3.0/
+
+image/health.png
+source: http://opengameart.org/content/power-up-icons
+license: http://creativecommons.org/licenses/by/3.0/
+
+image/player.png
+source: http://opengameart.org/content/spaceship-8
+license: http://creativecommons.org/licenses/by-sa/3.0/
+
+sound/collision.mp3
+source: http://www.freesound.org/people/qubodup/sounds/67617/
+license: http://creativecommons.org/publicdomain/zero/1.0/
+
+sound/explosion.mp3
+source: http://www.freesound.org/people/Nbs%20Dark/sounds/94185/
+license: http://creativecommons.org/publicdomain/zero/1.0/
+
+sound/powerup.mp3
+source: http://www.freesound.org/people/Kastenfrosch/sounds/162476/
+license: http://creativecommons.org/publicdomain/zero/1.0/
+
+sound/shoot.mp3
+source: http://www.freesound.org/people/Quonux/sounds/166418/
+license: http://creativecommons.org/licenses/by/3.0/

@@ -1,12 +1,18 @@
+/*
+ * This class implements enemies. Enemies move and wrap around the screen.
+ * They move faster in higher levels. Enemies can shoot projectiles. They
+ * disappear when destroyed.
+ */
 class Enemy extends MovingObject {
   int health = 10;
   boolean active = true;
   float angle = random(TWO_PI); // angle of rotation
-  PImage img = loadImage("ufo.png"); // image
-  int spawnFrame;
+  int spawnFrame; // stores frame this enemy was spawned
+
   // stores all of enemy's projectiles
   ArrayList<Projectile> projectiles;
 
+  // construct enemy with given level
   Enemy(int level) {
     super(new PVector(), new PVector(), new PVector(), random(20, 30));
     int edge = int(random(4));
@@ -33,18 +39,22 @@ class Enemy extends MovingObject {
     projectiles = new ArrayList<Projectile>();
   }
 
+  // make enemy shoot
   void shoot() {
     projectiles.add(
       new Projectile(pos.get(), new PVector(16 * cos(angle), 16 * sin(angle)),
         1)
     );
+    shootSFX.play();
+    shootSFX.rewind();
   }
 
+  // returns the number of frames this enemy was active
   int framesActive() {
     return frameCount - spawnFrame;
   }
 
-  // updates to execute when this asteroid is hit
+  // updates to execute when this enemy is hit
   void updateAfterHit() {
     if (active) {
       health -= 10;
@@ -52,6 +62,7 @@ class Enemy extends MovingObject {
     }
   }
 
+  // update this enemy
   void update() {
     pos.add(vel); // update position
 
@@ -70,13 +81,14 @@ class Enemy extends MovingObject {
     }
   }
 
+  // display this enemy
   void display() {
     pushMatrix();
     translate(pos.x, pos.y);
-    rotate(angle);
-    scale(radius * 2 / img.width, radius * 2 / img.height);
+    rotate(angle + HALF_PI);
+    scale(radius * 2 / enemyImg.width, radius * 2 / enemyImg.height);
     imageMode(CENTER);
-    image(img, 0, 0);
+    image(enemyImg, 0, 0);
     popMatrix();
   }
 }

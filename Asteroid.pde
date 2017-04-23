@@ -1,10 +1,15 @@
+/*
+ * This class implements asteroids. Asteroids move and wrap around the screen.
+ * They move faster in higher levels. Asteroids can be big or small. Big
+ * asteroids spawn small asteroids when destroyed. Small asteroids disappear
+ * when destroyed.
+ */
 class Asteroid extends MovingObject {
   int health = 10;
   boolean active = true;
   float angle = random(TWO_PI); // angle of rotation
-  PImage img = loadImage("meteor.png"); // image
 
-  // construct big asteroid
+  // construct big asteroid with given level
   Asteroid(int level) {
     super(new PVector(), new PVector(), new PVector(), random(20, 30));
     int edge = int(random(4));
@@ -29,7 +34,7 @@ class Asteroid extends MovingObject {
     }
   }
 
-  // construct small asteroid
+  // construct small asteroid with given position and level
   Asteroid(PVector pos_, int level) {
     super(pos_, new PVector(), new PVector(), random(10, 15));
     int edge = int(random(4));
@@ -50,6 +55,7 @@ class Asteroid extends MovingObject {
     }
   }
 
+  // returns whether this asteroid is a big one
   boolean big() {
     return radius >= 20;
   }
@@ -62,6 +68,7 @@ class Asteroid extends MovingObject {
     }
   }
 
+  // update this asteroid
   void update() {
     pos.add(vel); // update position
 
@@ -80,13 +87,14 @@ class Asteroid extends MovingObject {
     }
   }
 
+  // display this asteroid
   void display() {
     pushMatrix();
     translate(pos.x, pos.y);
     rotate(angle);
-    scale(radius * 2 / img.width, radius * 2 / img.height);
+    scale(radius * 2 / asteroidImg.width, radius * 2 / asteroidImg.height);
     imageMode(CENTER);
-    image(img, 0, 0);
+    image(asteroidImg, 0, 0);
     popMatrix();
   }
 }

@@ -1,8 +1,13 @@
+/*
+ * This class implements the player spaceship. The player can rotate left/right,
+ * accelerate forward, and shoot projectiles. The game is over when the player's
+ * health reaches 0. Only one object of this class is active at any given time.
+ */
 class Player extends MovingObject {
-  static final int fullHealth = 200;
-  int health = fullHealth;
+  static final int fullHealth = 200; // the maximum health player can have
+  int health = fullHealth; // player's current health
   float angle = -HALF_PI; // angle of rotation. face up initially
-  int projectileLevel = 1;
+  int projectileLevel = 1; // projectile's power level
 
   // stores all of player's projectiles
   ArrayList<Projectile> projectiles;
@@ -16,11 +21,14 @@ class Player extends MovingObject {
     projectiles = new ArrayList<Projectile>();
   }
 
+  // make this player shoot
   void shoot() {
     projectiles.add(
       new Projectile(pos.get(), new PVector(16 * cos(angle), 16 * sin(angle)),
         projectileLevel)
     );
+    shootSFX.play();
+    shootSFX.rewind();
   }
 
   // make player accelerate in direction of angle
@@ -28,14 +36,17 @@ class Player extends MovingObject {
     acc.add(new PVector(0.15 * cos(angle), 0.15 * sin(angle)));
   }
 
+  // rotate this player left
   void rotateLeft() {
     angle -= 0.1;
   }
 
+  // rotate this player right
   void rotateRight() {
     angle += 0.1;
   }
 
+  // updates to execute when player is hit
   void updateAfterHit() {
     health -= 10;
   }
@@ -53,49 +64,14 @@ class Player extends MovingObject {
     popMatrix();
   }
 
+  // display player
   void display() {
     pushMatrix();
     translate(pos.x, pos.y);
     rotate(angle + HALF_PI);
-    scale(radius * 2 / 150, radius * 2 / 200);
-
-    // tip
-    stroke(0);
-    strokeWeight(2);
-    line(0, 0, 0, -100);
-
-    // thrusters
-    fill(255, 255, 0);
-    ellipse(0, 80, 15, 40);
-    ellipse(-64, 60, 12, 40);
-    ellipse(64, 60, 12, 40);
-
-    // wing rect
-    fill(150, 150, 255);
-    rectMode(CENTER);
-    rect(45, 50, 60, 10);
-    rect(-45, 50, 60, 10);
-
-    // wing quad
-    fill(255, 200, 200);
-    quad(-75, 55, -75, -20, -65, 30, -50, 55);
-    quad(75, 55, 75, -20, 65, 30, 50, 55);
-
-    // tail
-    triangle(-25, 95, 0, 0, 25, 25);
-    triangle(25, 95, 0, 0, -25, 25);
-
-    // body
-    fill(200, 200, 255);
-    ellipse(0, -10, 75, 140);
-
-    // center line
-    line(0, -30, 0, 60);
-
-    // front viewport
-    fill(100);
-    quad(-25, -40, -10, -70, 10, -70, 25, -40);
-
+    scale(radius * 2 / playerImg.width, radius * 2 / playerImg.height);
+    imageMode(CENTER);
+    image(playerImg, 0, 0);
     popMatrix();
   }
 }

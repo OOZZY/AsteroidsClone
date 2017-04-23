@@ -1,3 +1,7 @@
+/*
+ * This class implements projectiles. Projectiles disappear when they leave the
+ * screen. They are used by Enemy and Player.
+ */
 class Projectile extends MovingObject {
   int health = 10;
   boolean active = true;
@@ -15,6 +19,7 @@ class Projectile extends MovingObject {
     return pos.x < 0 || pos.x > width || pos.y < 0 || pos.y > height;
   }
 
+  // updates to execute when this projectile hits something
   void updateAfterHit() {
     if (active) {
       health -= 10;
@@ -22,11 +27,13 @@ class Projectile extends MovingObject {
     }
   }
 
+  // update this projectile
   void update() {
     pos.add(vel);
     if (offScreen()) { active = false; }
   }
 
+  // dipsplay this projectile
   void display() {
     if (active) {
       pushMatrix();

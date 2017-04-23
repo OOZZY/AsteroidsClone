@@ -1,3 +1,7 @@
+/*
+ * This class implements moving objects. It is designed to be a superclass. It
+ * provides basic movement/physics and collision detection to subclasses.
+ */
 class MovingObject {
   static final float DAMP = 0.98; // dampening factor
 
