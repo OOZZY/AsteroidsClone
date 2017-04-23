@@ -2,6 +2,7 @@ class Player extends MovingObject {
   static final int fullHealth = 200;
   int health = fullHealth;
   float angle = -HALF_PI; // angle of rotation. face up initially
+  int projectileLevel = 1;
 
   // stores all of player's projectiles
   ArrayList<Projectile> projectiles;
@@ -17,7 +18,8 @@ class Player extends MovingObject {
 
   void shoot() {
     projectiles.add(
-      new Projectile(pos.get(), new PVector(16 * cos(angle), 16 * sin(angle)))
+      new Projectile(pos.get(), new PVector(16 * cos(angle), 16 * sin(angle)),
+        projectileLevel)
     );
   }
 

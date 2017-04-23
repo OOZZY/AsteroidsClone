@@ -1,11 +1,13 @@
 class Projectile extends MovingObject {
+  int health = 10;
   boolean active = true;
 
   // construct with given arguments
-  Projectile(PVector pos_, PVector vel_) {
+  Projectile(PVector pos_, PVector vel_, int level) {
     // acceleration: 0
     // radius: 4
     super(pos_, vel_, new PVector(), 4);
+    health *= level;
   }
 
   // returns whether this projectile is off the screen
@@ -14,7 +16,10 @@ class Projectile extends MovingObject {
   }
 
   void updateAfterHit() {
-    active = false;
+    if (active) {
+      health -= 10;
+      if (health <= 0) { active = false; }
+    }
   }
 
   void update() {

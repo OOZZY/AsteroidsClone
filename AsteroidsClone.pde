@@ -6,15 +6,23 @@ ArrayList<Asteroid> asteroids = new ArrayList<Asteroid>();
 // stores all enemies
 ArrayList<Enemy> enemies = new ArrayList<Enemy>();
 
+// stores all powerUps
+ArrayList<PowerUp> powerUps = new ArrayList<PowerUp>();
+
 // variables to keep track of HUD data
 int score = 0;
 int asteroidsDestroyed = 0;
 int enemiesDestroyed = 0;
 int finalElapsedTime = 0;
+int level = 1;
+int levelGoal = 1000;
 
 // points rewarded
 final int asteroidPoints = 10;
 final int enemyPoints = 20;
+
+// background image
+PImage bgImage;
 
 // boolean values that will be set to true/false when the corresponding key is
 // pressed/released
@@ -63,18 +71,23 @@ void displayHUD(float x, float y, boolean gameOver) {
   // display HUD data
   textAlign(LEFT, LEFT);
   fill(0, 255, 0);
-  text("Score: " + score, 0, 0);
-  text("Asteroids destroyed: " + asteroidsDestroyed, 0, 20);
-  text("Enemies destroyed: " + enemiesDestroyed, 0, 40);
+  int yOffset = -20;
+  text("Level: " + level, 0, yOffset += 20);
+  text("Score: " + score, 0, yOffset += 20);
+  text("Asteroids destroyed: " + asteroidsDestroyed, 0, yOffset += 20);
+  text("Enemies destroyed: " + enemiesDestroyed, 0, yOffset += 20);
   if (!gameOver) {
-    text("Time elapsed (s): " + millis() / 1000, 0, 60);
-    text("Frame rate (fps): " + int(frameRate), 0, 80);
+    text("Time elapsed (s): " + millis() / 1000, 0, yOffset += 20);
+    text("Frame rate (fps): " + int(frameRate), 0, yOffset += 20);
   } else {
-    text("Time elapsed (s): " + finalElapsedTime, 0, 60);
+    text("Time elapsed (s): " + finalElapsedTime, 0, yOffset += 20);
   }
-  text("player.projectiles.size(): " + player.projectiles.size(), 0, 100);
-  text("asteroids.size(): " + asteroids.size(), 0, 120);
-  text("enemies.size(): " + enemies.size(), 0, 140);
+  text("player.projectiles.size(): " + player.projectiles.size(), 0,
+    yOffset += 20);
+  text("player.projectileLevel: " + player.projectileLevel, 0, yOffset += 20);
+  text("asteroids.size(): " + asteroids.size(), 0, yOffset += 20);
+  text("enemies.size(): " + enemies.size(), 0, yOffset += 20);
+  text("powerUps.size(): " + powerUps.size(), 0, yOffset += 20);
   popMatrix();
 }
 
@@ -82,6 +95,7 @@ void setup() {
   size(600, 600);
   background(0);
   player = new Player();
+  bgImage = loadImage("stars.png");
 }
 
 void draw() {
@@ -94,7 +108,8 @@ void draw() {
     return; // avoid executing the rest of this draw() method
   }
 
-  background(0);
+  imageMode(CENTER);
+  image(bgImage, width / 2, height / 2);
 
   if (up) {
     player.move();
@@ -110,14 +125,39 @@ void draw() {
     space = false;
   }
 
+  if (score >= levelGoal) {
+    level++;
+    levelGoal += levelGoal * 2;
+  }
+
   // spawn asteroid. limit number of asteroids active to 10
-  if (asteroids.size() < 10 && random(0, 100) < 2) {
-    asteroids.add(new Asteroid());
+  if (asteroids.size() < 10 && random(100) < 2) {
+    asteroids.add(new Asteroid(level));
   }
 
   // spawn enemy. limit number of enemies active to 2
-  if (enemies.size() < 2 && random(0, 100) < 1) {
-    enemies.add(new Enemy());
+  if (enemies.size() < 2 && random(100) < 1) {
+    enemies.add(new Enemy(level));
+  }
+
+  // make enemies shoot
+  for (int i = 0; i < enemies.size(); ++i) {
+    Enemy enemy = enemies.get(i);
+    if (enemy.framesActive() % 120 == 0) {
+      enemy.shoot();
+    }
+  }
+
+  // check for collisions between enemy projectiles and player
+  for (int i = 0; i < enemies.size(); ++i) {
+    Enemy enemy = enemies.get(i);
+    for (int j = 0; j < enemy.projectiles.size(); ++j) {
+      Projectile projectile = enemy.projectiles.get(j);
+      if (projectile.collidingWith(player)) {
+        projectile.updateAfterHit();
+        player.updateAfterHit();
+      }
+    }
   }
 
   // check for collisions between player projectiles and asteroids
@@ -182,10 +222,26 @@ void draw() {
     }
   }
 
+  // check for collisions between player and powerUps
+  for (int i = 0; i < powerUps.size(); ++i) {
+    PowerUp powerUp = powerUps.get(i);
+    if (player.collidingWith(powerUp) && powerUp.active) {
+      powerUp.updateAfterHit(player);
+    }
+  }
+
   // remove inactive asteroids
   for (int i = 0; i < asteroids.size(); ++i) {
     Asteroid asteroid = asteroids.get(i);
     if (!asteroid.active) {
+      // spawn smaller asteroid
+      if (asteroid.big()) {
+        asteroids.add(new Asteroid(asteroid.pos.get(), level));
+        asteroids.add(new Asteroid(asteroid.pos.get(), level));
+      }
+      if (random(100) < 5) {
+        powerUps.add(new PowerUp(asteroid.pos.get()));
+      }
       asteroids.remove(i);
     }
   }
@@ -194,7 +250,29 @@ void draw() {
   for (int i = 0; i < enemies.size(); ++i) {
     Enemy enemy = enemies.get(i);
     if (!enemy.active) {
+      if (random(100) < 5) {
+        powerUps.add(new PowerUp(enemy.pos.get()));
+      }
       enemies.remove(i);
+    }
+  }
+
+  // remove inactive powerUps
+  for (int i = 0; i < powerUps.size(); ++i) {
+    PowerUp powerUp = powerUps.get(i);
+    if (!powerUp.active) {
+      powerUps.remove(i);
+    }
+  }
+
+  // remove inactive enemy projectiles
+  for (int i = 0; i < enemies.size(); ++i) {
+    Enemy enemy = enemies.get(i);
+    for (int j = 0; j < enemy.projectiles.size(); ++j) {
+      Projectile projectile = enemy.projectiles.get(j);
+      if (!projectile.active) {
+        enemy.projectiles.remove(j);
+      }
     }
   }
 
@@ -218,6 +296,23 @@ void draw() {
     Enemy enemy = enemies.get(i);
     enemy.update();
     enemy.display();
+  }
+
+  // update/display powerUps
+  for (int i = 0; i < powerUps.size(); ++i) {
+    PowerUp powerUp = powerUps.get(i);
+    powerUp.update();
+    powerUp.display();
+  }
+
+  // update/display enemy projectiles
+  for (int i = 0; i < enemies.size(); ++i) {
+    Enemy enemy = enemies.get(i);
+    for (int j = 0; j < enemy.projectiles.size(); ++j) {
+      Projectile projectile = enemy.projectiles.get(j);
+      projectile.update();
+      projectile.display();
+    }
   }
 
   // update/display player projectiles
